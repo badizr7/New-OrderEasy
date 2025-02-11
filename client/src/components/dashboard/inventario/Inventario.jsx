@@ -6,6 +6,8 @@ import CrearProductoForm from './vistas/CrearProductoForm';
 import GestionarCategoriaForm from './vistas/GestionarCategoriaForm';
 import { getCategoriesByUser } from '../../../services/categoryServices';
 import { getAllProducts } from '../../../services/productServices';
+import './Inventario.css';
+
 
 function Inventario() {
   const [isCrearCategoriaVisible, setCrearCategoriaVisible] = useState(false);
@@ -119,33 +121,37 @@ function Inventario() {
   return (
     <div>
       {/* Controles principales */}
-      <div>
+      <div className="botones-inventario">
         <button onClick={() => setCrearProductoVisible(true)}>Agregar Producto</button>
         <button onClick={() => setGestionarCategoriaVisible(true)}>Gestionar Categorías</button>
       </div>
 
+
       {/* Controles de categorías y búsqueda */}
-      <div>
+      <div className="categoria-busqueda">
         <button onClick={() => setCrearCategoriaVisible(true)}>Agregar Categoría</button>
-        <select
-          name="categorias"
-          value={selectedCategoria}
-          onChange={(e) => setSelectedCategoria(e.target.value)}
-        >
-          <option value="">Seleccione una categoría</option>
-          {categorias.map((categoria) => (
-            <option key={categoria._id} value={categoria.nombre}>
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Buscar Producto"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="busqueda">
+          <select
+            name="categorias"
+            value={selectedCategoria}
+            onChange={(e) => setSelectedCategoria(e.target.value)}
+          >
+            <option value="">Seleccione una categoría</option>
+            {categorias.map((categoria) => (
+              <option key={categoria._id} value={categoria.nombre}>
+                {categoria.nombre}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            placeholder="Buscar Producto"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
+
 
       {/* Renderización de productos filtrados */}
       <VisualizarProductos
