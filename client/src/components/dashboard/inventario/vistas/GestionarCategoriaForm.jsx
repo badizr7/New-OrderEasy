@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2'; // Importamos SweetAlert2
 import './styles/GestionarCategoriaForm.css';
 import { getCategoriesByUser, updateCategory, deleteCategory } from '../../../../services/categoryServices';
 
 function GestionarCategoriaForm({ isVisible, onClose }) {
   const [categorias, setCategorias] = useState([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
-  const [isEditing, setIsEditing] = useState(false); // Estado para controlar si estamos editando
+  const [isEditing, setIsEditing] = useState(false);
   const [editedCategoria, setEditedCategoria] = useState({
     nombre: '',
     descripcion: '',
@@ -14,9 +15,9 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const token = localStorage.getItem('token'); // Suponiendo que el token se almacena en localStorage
+        const token = localStorage.getItem('token');
         const categoriasData = await getCategoriesByUser(token);
-        setCategorias(categoriasData); // Actualizamos el estado con el array de categorías
+        setCategorias(categoriasData);
       } catch (error) {
         console.error('Error al obtener las categorías:', error);
       }
@@ -38,7 +39,7 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
   };
 
   const handleEdit = () => {
-    setIsEditing(true); // Activamos el modo de edición
+    setIsEditing(true);
   };
 
   const handleSave = async () => {
@@ -48,17 +49,30 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
         const updatedCategoria = { ...categoriaSeleccionada, ...editedCategoria };
         await updateCategory(categoriaSeleccionada._id, updatedCategoria, token);
         
-        // Actualizamos la categoría editada en el estado
         setCategorias(categorias.map((cat) =>
           cat._id === categoriaSeleccionada._id ? updatedCategoria : cat
         ));
         setCategoriaSeleccionada(updatedCategoria);
-        setIsEditing(false); // Desactivamos el modo de edición
-        window.location.reload(); // Recargamos la página
-        alert('Categoría actualizada con éxito');
+        setIsEditing(false);
+
+        // Alerta con SweetAlert2
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Categoría actualizada con éxito',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+        }).then(() => {
+          window.location.reload(); // Recargamos la página después de la alerta
+        });
+
       } catch (error) {
         console.error('Error al actualizar la categoría:', error);
-        alert('Hubo un error al actualizar la categoría');
+        Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al actualizar la categoría',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+        });
       }
     }
   };
@@ -67,17 +81,42 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
     if (categoriaSeleccionada) {
       try {
         const token = localStorage.getItem('token');
+
+        // Confirmación antes de eliminar
+        const confirmacion = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Esta acción eliminará la categoría permanentemente.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+        });
+
+        if (!confirmacion.isConfirmed) return;
+
         await deleteCategory(categoriaSeleccionada._id, token);
-        
-        // Eliminamos la categoría del estado
+
         setCategorias(categorias.filter((cat) => cat._id !== categoriaSeleccionada._id));
         setCategoriaSeleccionada(null);
-        setIsEditing(false); // Desactivamos el modo de edición
-        window.location.reload(); // Recargamos la página
-        alert('Categoría eliminada con éxito');
+        setIsEditing(false);
+
+        Swal.fire({
+          title: '¡Eliminado!',
+          text: 'La categoría se eliminó correctamente',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+        }).then(() => {
+          window.location.reload();
+        });
+
       } catch (error) {
         console.error('Error al eliminar la categoría:', error);
-        alert('Hubo un error al eliminar la categoría');
+        Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al eliminar la categoría',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+        });
       }
     }
   };

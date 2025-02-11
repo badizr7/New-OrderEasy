@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2'; // Importa SweetAlert2
 import './styles/CrearCategoriaForm.css';
 import { createCategory } from '../../../../services/categoryServices'; // Importa el servicio
 
 function CrearCategoriaForm({ isVisible, onClose }) {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [mensaje, setMensaje] = useState('');
 
   if (!isVisible) return null;
 
@@ -13,18 +13,34 @@ function CrearCategoriaForm({ isVisible, onClose }) {
     event.preventDefault();
 
     try {
-      const token = localStorage.getItem('token'); // Suponiendo que el token se almacena en localStorage
+      const token = localStorage.getItem('token'); // Obtiene el token
       const nuevaCategoria = { nombre, descripcion };
 
-      const respuesta = await createCategory(nuevaCategoria, token);
-      setMensaje(respuesta.mensaje || 'Categoría creada exitosamente');
+      await createCategory(nuevaCategoria, token);
+
+      // Muestra la alerta de éxito
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'Categoría creada satisfactoriamente.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        window.location.reload(); // Recarga la página después de la alerta
+      });
+
       setNombre('');
       setDescripcion('');
       onClose(); // Cierra el popup después de crear la categoría
-      window.location.reload(); // Recarga la página
     } catch (error) {
       console.error('Error al crear la categoría:', error);
-      setMensaje('Error al crear la categoría.');
+      
+      // Muestra una alerta de error si falla
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al crear la categoría.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
   };
 
@@ -59,7 +75,6 @@ function CrearCategoriaForm({ isVisible, onClose }) {
               Cancelar
             </button>
           </div>
-          {mensaje && <p className="mensaje">{mensaje}</p>}
         </form>
       </div>
     </div>

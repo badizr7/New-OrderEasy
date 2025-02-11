@@ -10,6 +10,8 @@ const path = require('path'); // Añadido para servir archivos estáticos
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes'); // Añadido
 const productRoutes = require('./routes/productRoutes');
+const ingresoRoutes = require('./routes/ingresoRoutes');
+const egresoRoutes = require('./routes/egresoRoutes');
 
 const app = express();
 
@@ -30,6 +32,8 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/', categoryRoutes); // Añadido
 app.use('/api/productos', productRoutes);
+app.use('/api/ingresos', ingresoRoutes);
+app.use('/api/egresos', egresoRoutes);
 
 // Conectar a MongoDB
 const PORT = process.env.PORT || 3000;

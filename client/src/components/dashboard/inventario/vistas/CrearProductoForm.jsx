@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2'; // Importa SweetAlert2
 import './styles/CrearProductoForm.css';
 import { createProduct } from '../../../../services/productServices';
-import { getCategoriesByUser } from '../../../../services/categoryServices'; // Asegúrate de tener esta importación
+import { getCategoriesByUser } from '../../../../services/categoryServices';
 
 function CrearProductoForm({ isVisible, onClose }) {
   const [nombre, setNombre] = useState('');
@@ -9,24 +10,23 @@ function CrearProductoForm({ isVisible, onClose }) {
   const [cantidadDisponible, setCantidadDisponible] = useState('');
   const [precioCompra, setPrecioCompra] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
-  const [imagenes, setImagenes] = useState(null); // Cambiado a un archivo
+  const [imagenes, setImagenes] = useState(null);
   const [nombreCategoria, setNombreCategoria] = useState('');
-  const [categorias, setCategorias] = useState([]); // Estado para almacenar las categorías
-  const [mensaje, setMensaje] = useState('');
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem('token');
-        const categoriasData = await getCategoriesByUser(token); // Llamada a la API
-        setCategorias(categoriasData); // Almacenar las categorías
+        const categoriasData = await getCategoriesByUser(token);
+        setCategorias(categoriasData);
       } catch (error) {
         console.error('Error al obtener categorías:', error);
       }
     };
 
     fetchCategories();
-  }, []); // Solo se ejecuta una vez cuando el componente se monta
+  }, []);
 
   if (!isVisible) return null;
 
@@ -44,33 +44,48 @@ function CrearProductoForm({ isVisible, onClose }) {
       formData.append('precioVenta', precioVenta);
       formData.append('nombreCategoria', nombreCategoria);
 
-      // Si se seleccionaron imágenes, agregar al FormData
       if (imagenes) {
         for (let i = 0; i < imagenes.length; i++) {
           formData.append('imagenes', imagenes[i]);
         }
       }
 
-      const respuesta = await createProduct(formData, token);
-      setMensaje(respuesta.mensaje || 'Producto creado exitosamente');
+      await createProduct(formData, token);
+
+      // Mostrar alerta de éxito
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'Producto creado satisfactoriamente.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        window.location.reload(); // Recarga la página después de la alerta
+      });
+
       setNombre('');
       setDescripcion('');
       setCantidadDisponible('');
       setPrecioCompra('');
       setPrecioVenta('');
-      setImagenes(null); // Limpiar las imágenes
+      setImagenes(null);
       setNombreCategoria('');
-      onClose(); // Cierra el popup
-      window.location.reload(); // Recarga la página
+      onClose();
     } catch (error) {
       console.error('Error al crear el producto:', error);
-      setMensaje('Error al crear el producto.');
+      
+      // Mostrar alerta de error
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al crear el producto.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
   };
 
   const handleImageChange = (event) => {
     const files = event.target.files;
-    setImagenes(files); // Almacenar los archivos seleccionados
+    setImagenes(files);
   };
 
   return (
@@ -127,7 +142,6 @@ function CrearProductoForm({ isVisible, onClose }) {
               onChange={(e) => setPrecioVenta(e.target.value)}
             />
           </div>
-          {/* Cuadro de selección para las categorías */}
           <div className="form-group">
             <label htmlFor="productoCategoria">Seleccionar Categoría</label>
             <select
@@ -149,7 +163,6 @@ function CrearProductoForm({ isVisible, onClose }) {
               Cancelar
             </button>
           </div>
-          {mensaje && <p className="mensaje">{mensaje}</p>}
         </form>
       </div>
     </div>

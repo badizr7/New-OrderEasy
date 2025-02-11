@@ -24,6 +24,7 @@ const createProduct = async (req, res) => {
       precioCompra,
       precioVenta,
       imagenes, // Guardar las rutas de las imágenes en el campo imagenes
+      categoriaNombre: categoria.nombre,
       categoriaId: categoria._id, // Asociamos el id de la categoría al producto
       usuarioId,
     });
