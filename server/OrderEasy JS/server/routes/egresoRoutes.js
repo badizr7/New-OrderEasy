@@ -1,10 +1,13 @@
-const express = require('express');
+const express = require("express");
+const { createEgreso, getEgresos } = require("../controllers/egresoController");
+const { verificarToken } = require("../middleware/authMiddleware");
+
 const router = express.Router();
-const { registrarEgreso, obtenerEgresos } = require('../controllers/egresoController');
-const { verificarToken } = require('../middleware/authMiddleware');
 
+// 📌 Registrar un egreso
+router.post("/", verificarToken, createEgreso);
 
-router.post('/', verificarToken, registrarEgreso);
-router.get('/', verificarToken, obtenerEgresos);
+// 📌 Obtener todos los egresos del usuario
+router.get("/", verificarToken, getEgresos);
 
 module.exports = router;

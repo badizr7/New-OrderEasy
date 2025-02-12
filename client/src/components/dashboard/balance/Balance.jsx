@@ -1,16 +1,25 @@
-import React from 'react';
-import './Balance.css'; // Asegúrate de importar el CSS
+import React, { useState } from "react";
+import RegistrarIngresoForm from "./vistas/RegistrarIngresoForm";
+import RegistrarEgresoForm from "./vistas/RegistrarEgresoForm";
+import "./balance.css";
 
 function Balance() {
+  const [mostrarIngreso, setMostrarIngreso] = useState(false);
+  const [mostrarEgreso, setMostrarEgreso] = useState(false);
+
   return (
     <div>
-      {/* Botones a la derecha */}
+      {/* Botones para abrir los formularios */}
       <div className="botones">
-        <button className='nuevo-ingreso'>Registrar Ingreso</button>
-        <button className='nuevo-egreso'>Registrar Egreso</button>
+        <button className="nuevo-ingreso" onClick={() => setMostrarIngreso(true)}>
+          Registrar Venta
+        </button>
+        <button className="nuevo-egreso" onClick={() => setMostrarEgreso(true)}>
+          Registrar Egreso
+        </button>
       </div>
 
-      {/* Balance distribuido horizontalmente con margen */}
+      {/* Balance distribuido horizontalmente */}
       <div className="balance">
         <div className="balance-general">
           <h3>Balance General</h3>
@@ -23,14 +32,15 @@ function Balance() {
         </div>
       </div>
 
-      {/* Botones inferiores ocupando todo el ancho */}
+      {/* Botones inferiores */}
       <div className="botones-expandibles">
         <button className="btn-ingresos">Ingresos</button>
         <button className="btn-egresos">Egresos</button>
       </div>
 
-      {/* Espacio para tablas */}
-      <div className="tablas"></div>
+      {/* Formularios flotantes */}
+      {mostrarIngreso && <RegistrarIngresoForm cerrarFormulario={() => setMostrarIngreso(false)} />}
+      {mostrarEgreso && <RegistrarEgresoForm cerrarFormulario={() => setMostrarEgreso(false)} />}
     </div>
   );
 }
