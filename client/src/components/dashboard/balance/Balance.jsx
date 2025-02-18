@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import RegistrarIngresoForm from "./vistas/RegistrarIngresoForm";
 import RegistrarEgresoForm from "./vistas/RegistrarEgresoForm";
+import TablaIngresos from "./vistas/TablaIngresos";
+import TablaEgresos from "./vistas/TablaEgresos";
 import "./balance.css";
 
 function Balance() {
+  const [mostrarTabla, setMostrarTabla] = useState("ingresos");
   const [mostrarIngreso, setMostrarIngreso] = useState(false);
   const [mostrarEgreso, setMostrarEgreso] = useState(false);
 
@@ -34,9 +37,17 @@ function Balance() {
 
       {/* Botones inferiores */}
       <div className="botones-expandibles">
-        <button className="btn-ingresos">Ingresos</button>
-        <button className="btn-egresos">Egresos</button>
+        <button className="btn-ingresos" onClick={() => setMostrarTabla("ingresos")}>
+          Ingresos
+        </button>
+        <button className="btn-egresos" onClick={() => setMostrarTabla("egresos")}>
+          Egresos
+        </button>
       </div>
+
+      {/* Mostrar la tabla correspondiente */}
+      {mostrarTabla === "ingresos" && <TablaIngresos />}
+      {mostrarTabla === "egresos" && <TablaEgresos />}
 
       {/* Formularios flotantes */}
       {mostrarIngreso && <RegistrarIngresoForm cerrarFormulario={() => setMostrarIngreso(false)} />}

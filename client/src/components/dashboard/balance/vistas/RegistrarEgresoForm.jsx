@@ -143,7 +143,7 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
                 {categoria.productos.length > 0 ? (
                   categoria.productos.map((producto) => (
                     <option key={producto._id} value={producto._id}>
-                      {producto.nombre} - Precio de compra: ${producto.precioCompra}
+                      {producto.nombre} - Stock: {producto.cantidadDisponible}
                     </option>
                   ))
                 ) : (
