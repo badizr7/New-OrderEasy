@@ -9,7 +9,7 @@ function Sidebar() {
   const handleLogout = () => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "Tu sesión se cerrará y deberás iniciar sesión nuevamente.",
+      text: "Tu sesión se cerrará.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
