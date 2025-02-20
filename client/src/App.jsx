@@ -8,6 +8,7 @@ import Estadisticas from './components/dashboard/estadisticas/Estadisticas';
 import Login from './components/login/Login';
 import ProtectedRoute from './components/ProtectedRoute'; // Importar el componente de protección
 import Inicio from './components/dashboard/inicio/Inicio';
+import Registro from './components/login/Registro';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         {/* Ruta pública: Login */}
         <Route path="/login" element={<Login />} />
+        <Route path='/registro' element={<Registro/>} />
 
         {/* Ruta privada: Dashboard y sus subrutas */}
         <Route

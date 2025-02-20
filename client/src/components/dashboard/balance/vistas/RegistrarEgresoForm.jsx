@@ -19,25 +19,89 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
     const cargarDatos = async () => {
       try {
         const token = localStorage.getItem("token");
-        const categoriasData = await getCategoriesByUser(token);
-        const productosData = await getAllProducts(token);
-
-        if (!Array.isArray(categoriasData) || !Array.isArray(productosData)) {
-          console.error("Los datos de la API no son un array");
-          return;
+        let categoriasData = await getCategoriesByUser(token);
+        let productosData = await getAllProducts(token);
+  
+        // 💡 Manejo de datos según el formato recibido
+        if (categoriasData && typeof categoriasData === "object") {
+          categoriasData = Array.isArray(categoriasData) ? categoriasData : Object.values(categoriasData);
+        } else {
+          throw new Error("Los datos de categorías no tienen un formato válido");
         }
-
+  
+        if (productosData && typeof productosData === "object") {
+          productosData = Array.isArray(productosData) ? productosData : Object.values(productosData);
+        } else {
+          throw new Error("Los datos de productos no tienen un formato válido");
+        }
+  
+        if (!Array.isArray(categoriasData) || !Array.isArray(productosData)) {
+          throw new Error("Los datos de la API no son un array después de la conversión");
+        }
+  
+        // Organizar categorías con sus productos
         const categoriasMap = categoriasData.reduce((acc, categoria) => {
           acc[categoria.nombre] = { ...categoria, productos: [] };
           return acc;
         }, {});
-
+  
         productosData.forEach((producto) => {
           if (categoriasMap[producto.categoriaNombre]) {
             categoriasMap[producto.categoriaNombre].productos.push(producto);
           }
         });
+  
+        setCategoriasConProductos(Object.values(categoriasMap));
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'Error al cargar los datos',
+          confirmButtonColor: '#3085d6'
+        });
+      }
+    };
+  
+    cargarDatos();
+  }, []);
+  
+  useEffect(() => {
+    if (productoIdSeleccionado) {
+      const producto = categoriasConProductos
+        .flatMap(categoria => categoria.productos)
+        .find(prod => prod.productoid === Number(productoIdSeleccionado));
+      setProductoSeleccionado(producto || null);
+    }
+  }, [productoIdSeleccionado, categoriasConProductos]);
+  
 
+  // Actualizar producto seleccionado cuando cambia la selección
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const categoriasData = await getCategoriesByUser(token);
+        const productosData = await getAllProducts(token);
+        if (!Array.isArray(categoriasData) || !Array.isArray(productosData)) {
+          console.error("Los datos de la API no son un array");
+          return;
+        }
+  
+        const categoriasMap = categoriasData.reduce((acc, categoria) => {
+          acc[categoria.nombre] = { ...categoria, productos: [] };
+          return acc;
+        }, {});
+  
+        productosData.forEach((producto) => {
+          const categoria = categoriasMap[producto.categoriaNombre]; // Buscar categoría por nombre
+          if (categoria) {
+            categoria.productos.push(producto);
+          }
+        });
+        
+        
+  
         setCategoriasConProductos(Object.values(categoriasMap));
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -49,21 +113,10 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
         });
       }
     };
-
+  
     cargarDatos();
   }, []);
-
-  // Actualizar producto seleccionado cuando cambia la selección
-  useEffect(() => {
-    if (productoIdSeleccionado) {
-      const producto = categoriasConProductos
-        .flatMap(cat => cat.productos)
-        .find(prod => prod._id === productoIdSeleccionado);
-      setProductoSeleccionado(producto);
-    } else {
-      setProductoSeleccionado(null);
-    }
-  }, [productoIdSeleccionado, categoriasConProductos]);
+  
 
   const onSubmit = async (data) => {
     try {
@@ -79,7 +132,7 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
       }
   
       const egresoData = {
-        productoId: productoSeleccionado._id,  // ✅ Se envía el ID del producto
+        productoId: productoSeleccionado.productoid,  // ✅ Se envía el ID del producto
         productoNombre: productoSeleccionado.nombre,
         cantidad: Number(data.cantidad),
         precioCompra: productoSeleccionado.precioCompra,  // ✅ Enviar precioCompra si el backend lo usa
@@ -106,6 +159,8 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
         timer: 5000,
         timerProgressBar: true,
         position: 'center',
+      }).then(() => {
+        window.location.reload(); // Recarga la página después de la alerta
       });
   
       reset();
@@ -139,10 +194,10 @@ const RegistrarEgresoForm = ({ cerrarFormulario }) => {
           >
             <option value="">Seleccione un producto</option>
             {categoriasConProductos.map((categoria) => (
-              <optgroup key={categoria._id} label={categoria.nombre}>
+              <optgroup key={categoria.categoriaid} label={categoria.nombre}>
                 {categoria.productos.length > 0 ? (
                   categoria.productos.map((producto) => (
-                    <option key={producto._id} value={producto._id}>
+                    <option key={producto.productoid} value={producto.productoid}>
                       {producto.nombre} - Stock: {producto.cantidadDisponible}
                     </option>
                   ))

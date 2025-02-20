@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 const verificarToken = (req, res, next) => {
-  // Obtener el token de los encabezados
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
@@ -9,11 +8,9 @@ const verificarToken = (req, res, next) => {
   }
 
   try {
-    // Verificar y decodificar el token
     const usuario = jwt.verify(token, 'clave_secreta');
-    
-    // Adjuntar la información del usuario a la solicitud
-    req.usuario = usuario;  // Aquí obtendrás el 'id' y demás datos
+
+    req.usuario = usuario; // Aquí obtendrás el usuarioId y demás datos
 
     next();
   } catch (error) {

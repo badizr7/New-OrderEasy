@@ -39,7 +39,7 @@ function VisualizarProductos({ productos }) {
   return (
     <div className="productos-container">
       {productos.map((producto) => (
-        <div key={producto._id} className="producto-card" onClick={() => handleProductoClick(producto)}>
+        <div key={producto.productoid} className="producto-card" onClick={() => handleProductoClick(producto)}>
           <div className="producto-imagen-container">
             <div className="producto-imagen-cuadro"></div>
           </div>
@@ -53,7 +53,7 @@ function VisualizarProductos({ productos }) {
         <ProductoInfo 
           producto={productoSeleccionado} 
           onClose={handleClosePopup} 
-          onDelete={() => handleDelete(productoSeleccionado._id)} // Pasar la función handleDelete como prop
+          onDelete={() => handleDelete(productoSeleccionado.productoid)} // Pasar la función handleDelete como prop
         />
       )}
     </div>

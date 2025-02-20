@@ -11,7 +11,7 @@ function CrearProductoForm({ isVisible, onClose }) {
   const [precioCompra, setPrecioCompra] = useState('');
   const [precioVenta, setPrecioVenta] = useState('');
   const [imagenes, setImagenes] = useState(null);
-  const [nombreCategoria, setNombreCategoria] = useState('');
+  const [categoriaNombre, setCategoriaNombre] = useState('');
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function CrearProductoForm({ isVisible, onClose }) {
       formData.append('cantidadDisponible', cantidadDisponible);
       formData.append('precioCompra', precioCompra);
       formData.append('precioVenta', precioVenta);
-      formData.append('nombreCategoria', nombreCategoria);
+      formData.append('categoriaNombre', categoriaNombre); // Se usa el nombre de la categoría
 
       if (imagenes) {
         for (let i = 0; i < imagenes.length; i++) {
@@ -68,7 +68,7 @@ function CrearProductoForm({ isVisible, onClose }) {
       setPrecioCompra('');
       setPrecioVenta('');
       setImagenes(null);
-      setNombreCategoria('');
+      setCategoriaNombre('');
       onClose();
     } catch (error) {
       console.error('Error al crear el producto:', error);
@@ -76,7 +76,7 @@ function CrearProductoForm({ isVisible, onClose }) {
       // Mostrar alerta de error
       Swal.fire({
         title: 'Error',
-        text: 'Hubo un problema al crear el producto.',
+        text: error.response?.data?.mensaje || 'Hubo un problema al crear el producto.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
@@ -146,16 +146,25 @@ function CrearProductoForm({ isVisible, onClose }) {
             <label htmlFor="productoCategoria">Seleccionar Categoría</label>
             <select
               id="productoCategoria"
-              value={nombreCategoria}
-              onChange={(e) => setNombreCategoria(e.target.value)}
+              value={categoriaNombre}
+              onChange={(e) => setCategoriaNombre(e.target.value)}
             >
               <option value="">Selecciona una categoría</option>
               {categorias.map((categoria) => (
-                <option key={categoria._id} value={categoria.nombre}>
+                <option key={categoria.categoriaId} value={categoria.nombre}>
                   {categoria.nombre}
                 </option>
               ))}
             </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="productoImagenes">Imágenes</label>
+            <input
+              type="file"
+              id="productoImagenes"
+              multiple
+              onChange={handleImageChange}
+            />
           </div>
           <div className="form-buttons">
             <button type="submit">Guardar</button>

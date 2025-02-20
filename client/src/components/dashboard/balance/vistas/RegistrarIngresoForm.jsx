@@ -52,16 +52,18 @@ const RegistrarIngresoForm = ({ cerrarFormulario }) => {
 
   // Verifica el producto seleccionado
   const productoIdSeleccionado = watch("productoId");
+  
 
   useEffect(() => {
-    if (productoIdSeleccionado) {
+    if (productoIdSeleccionado && categoriasConProductos.length > 0) {
       const productoEncontrado = categoriasConProductos
         .flatMap((cat) => cat.productos)
-        .find((prod) => prod._id === productoIdSeleccionado);
-
+        .find((prod) => String(prod.productoid) === String(productoIdSeleccionado)); // Convertimos ambos a string por seguridad
+  
       setProductoSeleccionado(productoEncontrado || null);
     }
   }, [productoIdSeleccionado, categoriasConProductos]);
+  
 
   const onSubmit = async (data) => {
     try {
@@ -112,7 +114,10 @@ const RegistrarIngresoForm = ({ cerrarFormulario }) => {
         timerProgressBar: true,
         position: "center",
         backdrop: true,
+      }).then(() => {
+        window.location.reload(); // Recarga la página después de la alerta
       });
+      
   
       reset();
       cerrarFormulario();
@@ -146,10 +151,10 @@ const RegistrarIngresoForm = ({ cerrarFormulario }) => {
           >
             <option value="">Seleccione un producto</option>
             {categoriasConProductos.map((categoria) => (
-              <optgroup key={categoria._id} label={categoria.nombre}>
+              <optgroup key={categoria.productoid} label={categoria.nombre}>
                 {categoria.productos.length > 0 ? (
                   categoria.productos.map((producto) => (
-                    <option key={producto._id} value={producto._id}>
+                    <option key={producto.productoid} value={producto.productoid}>
                       {producto.nombre} - Stock: {producto.cantidadDisponible}
                     </option>
                   ))

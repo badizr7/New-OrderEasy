@@ -30,13 +30,16 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
 
   const handleSelectChange = (event) => {
     const categoriaId = event.target.value;
-    const categoria = categorias.find((cat) => cat._id === categoriaId);
-    setCategoriaSeleccionada(categoria);
-    setEditedCategoria({
-      nombre: categoria.nombre,
-      descripcion: categoria.descripcion,
-    });
+    const categoria = categorias.find((cat) => cat.categoriaid == categoriaId);
+    if (categoria) {
+      setCategoriaSeleccionada(categoria);
+      setEditedCategoria({
+        nombre: categoria.nombre,
+        descripcion: categoria.descripcion,
+      });
+    }
   };
+  
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -47,10 +50,10 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
       try {
         const token = localStorage.getItem('token');
         const updatedCategoria = { ...categoriaSeleccionada, ...editedCategoria };
-        await updateCategory(categoriaSeleccionada._id, updatedCategoria, token);
+        await updateCategory(categoriaSeleccionada.categoriaid, updatedCategoria, token);
         
         setCategorias(categorias.map((cat) =>
-          cat._id === categoriaSeleccionada._id ? updatedCategoria : cat
+          cat.categoriaid === categoriaSeleccionada.categoriaid ? updatedCategoria : cat
         ));
         setCategoriaSeleccionada(updatedCategoria);
         setIsEditing(false);
@@ -94,9 +97,9 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
 
         if (!confirmacion.isConfirmed) return;
 
-        await deleteCategory(categoriaSeleccionada._id, token);
+        await deleteCategory(categoriaSeleccionada.categoriaid, token);
 
-        setCategorias(categorias.filter((cat) => cat._id !== categoriaSeleccionada._id));
+        setCategorias(categorias.filter((cat) => cat.categoriaid !== categoriaSeleccionada.categoriaid));
         setCategoriaSeleccionada(null);
         setIsEditing(false);
 
@@ -141,13 +144,13 @@ function GestionarCategoriaForm({ isVisible, onClose }) {
             <select
               id="selectCategoria"
               onChange={handleSelectChange}
-              value={categoriaSeleccionada ? categoriaSeleccionada._id : ""}
+              value={categoriaSeleccionada ? categoriaSeleccionada.categoriaid : ""}
             >
               <option value="" disabled>
                 Selecciona una categoría
               </option>
               {categorias.map((categoria) => (
-                <option key={categoria._id} value={categoria._id}>
+                <option key={categoria.categoriaid} value={categoria.categoriaid}>
                   {categoria.nombre}
                 </option>
               ))}

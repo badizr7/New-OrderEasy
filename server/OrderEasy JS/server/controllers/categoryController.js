@@ -1,100 +1,123 @@
-// controllers/categoryController.js
 const Categoria = require('../models/categoryModel');
 
 // Crear una nueva categoría
 const createCategory = async (req, res) => {
   try {
-    // Verificar que req.usuario contiene la información del usuario
-    // console.log('Usuario autenticado:', req.usuario);  // Ahora deberías ver el id aquí
-    
     const { nombre, descripcion } = req.body;
+    const usuarioid = req.usuario.usuarioId; // Convertimos a la variable correcta
 
-    // Accede a todos los datos del usuario desde req.usuario
-    const { id: usuarioId } = req.usuario;
-
-    // Verificar que el usuario tenga la información necesaria
-    if (!usuarioId) {
+    if (!usuarioid) {
       return res.status(400).json({ mensaje: 'Usuario no autenticado.' });
     }
 
     // Verificar si ya existe una categoría con el mismo nombre para este usuario
-    const categoriaExistente = await Categoria.findOne({ nombre, usuarioId });
+    const categoriaExistente = await Categoria.findOne({
+      where: {
+        nombre,
+        usuarioid // Usamos `usuarioid` en lugar de `usuarioId`
+      }
+    });
+
     if (categoriaExistente) {
       return res.status(400).json({ mensaje: 'Ya existe una categoría con este nombre.' });
     }
 
     // Crear la nueva categoría
-    const nuevaCategoria = new Categoria({
+    const nuevaCategoria = await Categoria.create({
       nombre,
       descripcion,
-      usuarioId,  // Asociamos el usuarioId a la categoría
+      usuarioid // Usamos `usuarioid` en lugar de `usuarioId`
     });
 
-    // Guardar la categoría en la base de datos
-    await nuevaCategoria.save();
-    res.status(201).json({ mensaje: 'Categoría creada exitosamente.', categoria: nuevaCategoria });
+    res.status(201).json({
+      mensaje: 'Categoría creada exitosamente.',
+      categoria: nuevaCategoria
+    });
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear la categoría.', error });
+    console.error('❌ Error al crear categoría:', error);
+    res.status(500).json({ mensaje: 'Error al crear la categoría.', error: error.message });
   }
 };
-  
-  
+
 
 // Obtener las categorías de un usuario
 const getCategoriesByUser = async (req, res) => {
   try {
-    const usuarioId = req.usuario.id; // Obtenemos el id del usuario desde el token JWT
+    const usuarioid = req.usuario.usuarioId;
 
-    // Buscar las categorías del usuario
-    const categorias = await Categoria.find({ usuarioId });
+    const categorias = await Categoria.findAll({
+      where: { usuarioid }, // Usamos `usuarioid` en lugar de `usuarioId`
+      order: [['createdat', 'DESC']]
+    });
+
     res.status(200).json({ categorias });
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener las categorías.', error });
+    console.error('❌ Error al obtener categorías:', error);
+    res.status(500).json({ mensaje: 'Error al obtener las categorías.', error: error.message });
   }
 };
 
 // Editar una categoría
 const updateCategory = async (req, res) => {
-    try {
-      const { id } = req.params; // id de la categoría a actualizar
-      const { nombre, descripcion } = req.body;
-      const usuarioId = req.usuario.id;
-  
-      // Verificar si la categoría existe y si el usuario es el propietario
-      const categoria = await Categoria.findOne({ _id: id, usuarioId });
-      if (!categoria) {
-        return res.status(404).json({ mensaje: 'Categoría no encontrada o no pertenece al usuario.' });
+  try {
+    const { id } = req.params;
+    const { nombre, descripcion } = req.body;
+    const usuarioid = req.usuario.usuarioid; // Corregimos a `usuarioid`
+
+    // Verificar si la categoría existe y pertenece al usuario
+    const categoria = await Categoria.findOne({
+      where: {
+        categoriaid: id,
       }
-  
-      // Actualizar la categoría
-      categoria.nombre = nombre || categoria.nombre;
-      categoria.descripcion = descripcion || categoria.descripcion;
-  
-      await categoria.save();
-      res.status(200).json({ mensaje: 'Categoría actualizada exitosamente.', categoria });
-    } catch (error) {
-      res.status(500).json({ mensaje: 'Error al actualizar la categoría.', error });
+    });
+
+    if (!categoria) {
+      return res.status(404).json({ mensaje: 'Categoría no encontrada o no pertenece al usuario.' });
     }
-  };
+
+    // Actualizar la categoría
+    await categoria.update({
+      nombre: nombre || categoria.nombre,
+      descripcion: descripcion || categoria.descripcion
+    });
+
+    res.status(200).json({
+      mensaje: 'Categoría actualizada exitosamente.',
+      categoria
+    });
+  } catch (error) {
+    console.error('❌ Error al actualizar categoría:', error);
+    res.status(500).json({ mensaje: 'Error al actualizar la categoría.', error: error.message });
+  }
+};
 
 // Eliminar una categoría
 const deleteCategory = async (req, res) => {
-    try {
-      const { id } = req.params; // id de la categoría a eliminar
-      const usuarioId = req.usuario.id;
-  
-      // Verificar si la categoría existe y si el usuario es el propietario
-      const categoria = await Categoria.findOneAndDelete({ _id: id, usuarioId });
-      if (!categoria) {
-        return res.status(404).json({ mensaje: 'Categoría no encontrada o no pertenece al usuario.' });
+  try {
+    const { id } = req.params;
+    const usuarioid = req.usuario.usuarioid; // Corregimos a `usuarioid`
+
+    // Verificar si la categoría existe y pertenece al usuario
+    const resultado = await Categoria.destroy({
+      where: {
+        categoriaid: id,
       }
-  
-      res.status(200).json({ mensaje: 'Categoría eliminada exitosamente.' });
-    } catch (error) {
-      res.status(500).json({ mensaje: 'Error al eliminar la categoría.', error });
+    });
+
+    if (!resultado) {
+      return res.status(404).json({ mensaje: 'Categoría no encontrada o no pertenece al usuario.' });
     }
-  };
-  
 
+    res.status(200).json({ mensaje: 'Categoría eliminada exitosamente.' });
+  } catch (error) {
+    console.error('❌ Error al eliminar categoría:', error);
+    res.status(500).json({ mensaje: 'Error al eliminar la categoría.', error: error.message });
+  }
+};
 
-module.exports = { createCategory, getCategoriesByUser, updateCategory , deleteCategory };
+module.exports = {
+  createCategory,
+  getCategoriesByUser,
+  updateCategory,
+  deleteCategory
+};

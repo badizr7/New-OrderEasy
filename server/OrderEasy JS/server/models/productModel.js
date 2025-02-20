@@ -1,16 +1,60 @@
-// models/productModel.js
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database'); // Asegúrate de tener la configuración de Sequelize
+const Categoria = require('./categoryModel');
+const Usuario = require('./userModel');
 
-const productSchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  descripcion: { type: String, required: true },
-  cantidadDisponible: { type: Number, required: true },
-  precioCompra: { type: Number, required: true }, // Precio de compra del producto
-  precioVenta: { type: Number, required: true }, // Precio de venta del producto
-  imagenes: { type: [String], default: [] }, // Lista de URLs o nombres de imágenes, opcional
-  categoriaNombre: { type: String, required: true },
-  categoriaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categoria', required: true }, // Relación con la categoría
-  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true }, // Relación con el usuario
-}, { timestamps: true });
+const Producto = sequelize.define('Producto', {
+  productoid: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  nombre: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+  },
+  cantidadDisponible: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  precioCompra: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+  },
+  precioVenta: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+  },
+  imagenes: {
+    type: DataTypes.ARRAY(DataTypes.TEXT), // Guarda como array de texto
+    defaultValue: [],
+  },
+  categoriaNombre: {
+    type: DataTypes.STRING(100),
+  },
+  categoriaid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Categoria,
+      key: 'categoriaId',
+    },
+  },
+  usuarioid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Usuario,
+      key: 'usuarioId',
+    },
+  },
+}, {
+  timestamps: false,
+  tableName: 'productos',
+});
 
-module.exports = mongoose.model('Producto', productSchema);
+module.exports = Producto;

@@ -44,14 +44,26 @@ function Inventario() {
       const token = localStorage.getItem('token');
       if (token) {
         const productosData = await getAllProducts(token);
-        setProductos(productosData);
+        console.log("Productos obtenidos:", productosData);
+  
+        // Verifica si la respuesta ya es un array
+        if (Array.isArray(productosData)) {
+          setProductos(productosData);
+        } else {
+          console.error("La respuesta no contiene un array válido.");
+          setProductos([]); // Evita errores al filtrar
+        }
       } else {
-        console.error('No se encontró el token.');
+        console.error("No se encontró el token.");
       }
     } catch (error) {
-      console.error('Error al obtener los productos:', error);
+      console.error("Error al obtener los productos:", error);
+      setProductos([]); // Evita errores al filtrar
     }
   };
+  
+  
+  
 
   // Filtrar productos por categoría seleccionada y término de búsqueda
   const productosFiltrados = productos.filter((producto) => {

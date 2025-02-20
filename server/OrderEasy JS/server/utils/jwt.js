@@ -2,19 +2,18 @@ const jwt = require('jsonwebtoken');
 
 // Función para generar un token JWT
 const generarToken = (usuario) => {
-  // El usuario es un objeto que tiene el _id (por defecto en MongoDB)
   return jwt.sign(
     {
-      id: usuario._id.toString(),  // Incluir el _id del usuario en el payload del token
+      usuarioId: usuario.usuarioid, // Usando usuarioId en lugar de _id
       correo: usuario.correo,
-      primerNombre: usuario.primerNombre,
-      segundoNombre: usuario.segundoNombre,
-      primerApellido: usuario.primerApellido,
-      segundoApellido: usuario.segundoApellido,
+      primerNombre: usuario.primer_nombre,
+      segundoNombre: usuario.segundo_nombre,
+      primerApellido: usuario.primer_apellido,
+      segundoApellido: usuario.segundo_apellido,
       telefono: usuario.telefono,
     },
-    'clave_secreta',  // Cambia esto por tu clave secreta
-    { expiresIn: '1h' }  // Tiempo de expiración del token
+    'clave_secreta',  // Usa una clave secreta más segura en producción
+    { expiresIn: '1h' }
   );
 };
 

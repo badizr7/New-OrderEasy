@@ -1,10 +1,49 @@
-// models/categoryModel.js
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+const Usuario = require('./userModel');
 
-const categorySchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  descripcion: { type: String, required: true },
-  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true }, // Relacionado con el usuario
-}, { timestamps: true });
+const Categoria = sequelize.define('Categoria', {
+  categoriaid: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  nombre: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
+  },
+  usuarioid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'usuarios',
+      key: 'usuarioid'
+    }
+  },
+  createdat: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'categorias',
+  timestamps: false,
+  underscored: true
+});
 
-module.exports = mongoose.model('Categoria', categorySchema);
+// Definir la relación con Usuario
+Categoria.belongsTo(Usuario, {
+  foreignKey: 'usuarioid',
+  as: 'usuario'
+});
+
+module.exports = Categoria;

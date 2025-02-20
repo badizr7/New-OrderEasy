@@ -23,7 +23,7 @@ function EditarProductoForm({ producto, onClose, onUpdate }) {
 
       // Llama a la API para actualizar el producto
       const updatedProduct = await updateProduct(
-        producto._id,
+        producto.productoid,
         { nombre, descripcion, cantidadDisponible, precioCompra, precioVenta, categoriaId, imagenes },
         token
       );

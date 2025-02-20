@@ -1,15 +1,46 @@
-const mongoose = require("mongoose");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database'); // Asegúrate de tener la conexión a la BD
+const Usuario = require('./userModel'); // Importar modelo de usuario
 
-const egresoSchema = new mongoose.Schema(
-  {
-    productoNombre: { type: String, required: true },
-    cantidad: { type: Number, required: true },
-    precioCompra: { type: Number, required: true },
-    total: { type: Number, required: true },
-    descripcion: { type: String, required: true },
-    usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario", required: true },
+const Egreso = sequelize.define('Egreso', {
+  egresoid: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
   },
-  { timestamps: true }
-);
+  productoNombre: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  cantidad: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: { min: 1 }
+  },
+  precioCompra: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  total: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+    defaultValue: ''
+  },
+  usuarioid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: { model: Usuario, key: 'usuarioid' }
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'egresos',
+  timestamps: false
+});
 
-module.exports = mongoose.model("Egreso", egresoSchema);
+module.exports = Egreso;

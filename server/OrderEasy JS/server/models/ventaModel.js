@@ -1,12 +1,55 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database'); // Asegúrate de tener la configuración de Sequelize
+const Usuario = require('./userModel'); // Importa el modelo de Usuario si lo tienes
 
-const ventaSchema = new mongoose.Schema({
-  productoNombre: { type: String, required: true },  // Nombre del producto vendido
-  cantidad: { type: Number, required: true },        // Cantidad vendida
-  precioVenta: { type: Number, required: true },     // Precio de venta unitario
-  total: { type: Number, required: true },           // Total de la venta (precioVenta * cantidad)
-  descripcion: { type: String, default: '' },        // Descripción opcional
-  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true }, // Usuario que hizo la venta
-}, { timestamps: true });
+const Venta = sequelize.define('Venta', {
+  ventaid: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  productoNombre: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  cantidad: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: {
+      min: 1 // Asegura que la cantidad sea mayor a 0
+    }
+  },
+  precioVenta: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  total: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  usuarioid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Usuario,
+      key: 'usuarioid'
+    },
+    onDelete: 'CASCADE'
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'ventas',
+  timestamps: false // Ya tenemos createdAt manualmente
+});
 
-module.exports = mongoose.model('Venta', ventaSchema);
+// Asociación con Usuario
+Venta.belongsTo(Usuario, { foreignKey: 'usuarioid' });
+
+module.exports = Venta;

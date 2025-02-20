@@ -26,13 +26,13 @@ function ProductoInfo({ producto, onClose, onDelete, onUpdate }) {
           return;
         }
   
-        if (!producto._id) {
+        if (!producto.productoid) {
           console.error('Producto ID no encontrado');
           return;
         }
   
-        await deleteProduct(producto._id, token);
-        onDelete(producto._id); // Llama a onDelete para actualizar la lista de productos
+        await deleteProduct(producto.productoid, token);
+        onDelete(producto.productoid); // Llama a onDelete para actualizar la lista de productos
         onClose(); // Cierra el modal
         window.location.reload(); // Recarga la página
       } catch (error) {
