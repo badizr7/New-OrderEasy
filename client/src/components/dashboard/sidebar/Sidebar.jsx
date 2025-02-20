@@ -1,8 +1,38 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, LineChart, DollarSign, LogOut } from 'lucide-react';
+import Swal from 'sweetalert2';
 import './styles/Sidebar.css';
 
 function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Tu sesión se cerrará y deberás iniciar sesión nuevamente.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, cerrar sesión",
+      cancelButtonText: "Cancelar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('token');
+        
+        Swal.fire({
+          title: "Sesión cerrada",
+          text: "Has cerrado sesión exitosamente.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "OK"
+        }).then(() => {
+          navigate("/");
+        });
+      }
+    });
+  };
+
   return (
     <div className="sidebar">
       <div className="logo-container">
@@ -39,14 +69,10 @@ function Sidebar() {
       </div>
 
       <div className="logout-container">
-        <Link 
-          to="/" 
-          className="logout-button"
-          onClick={() => localStorage.removeItem('token')}
-        >
+        <button className="logout-button" onClick={handleLogout}>
           <LogOut className="menu-icon" />
           <span>Cerrar Sesión</span>
-        </Link>
+        </button>
       </div>
     </div>
   );
